@@ -1,15 +1,11 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"log"
 	"net/http"
-	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type todo struct {
@@ -73,19 +69,20 @@ func main() {
 	// 	log.Fatal("You must set your 'MONGODB_URI' environment variable")
 
 	// }
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb+srv://panda:panda@cluster0.sk272un.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			log.Fatal(err)
-		}
-	}()
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+	// client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb+srv://panda:panda@cluster0.sk272un.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer func() {
+	// 	if err := client.Disconnect(ctx); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }()
 
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	router.GET("/todos", getTodos)
 	router.GET("/todo/:email", getTodo)
