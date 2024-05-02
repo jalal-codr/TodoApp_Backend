@@ -1,11 +1,18 @@
 package main
 
 import (
+	"context"
 	"errors"
+	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type todo struct {
@@ -60,26 +67,25 @@ func addTodo(context *gin.Context) {
 }
 
 func main() {
-	//Database conection
-	// if err := godotenv.Load(); err != nil {
-	// 	log.Println("No .env file found")
-	// }
-	// uri := os.Getenv("MONGODB_URI")
-	// if uri == "" {
-	// 	log.Fatal("You must set your 'MONGODB_URI' environment variable")
+	// Database conection
 
-	// }
-	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	// defer cancel()
-	// client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb+srv://panda:panda@cluster0.sk272un.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer func() {
-	// 	if err := client.Disconnect(ctx); err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }()
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found")
+	}
+	uri := os.Getenv("MONGODB_URI")
+	if uri == "" {
+		log.Fatal("You must set your 'MONGODB_URI' environment variable")
+
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		log.Fatal(err)
+	}
+	collection := client.Database("TodoApp").Collection("todos")
+	log.Println(collection)
 
 	router := gin.Default()
 	router.Use(cors.Default())
