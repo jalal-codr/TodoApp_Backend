@@ -1,12 +1,9 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -15,15 +12,13 @@ import (
 )
 
 type todo struct {
-	Email string `json:"Email"`
+	User        string `json:"user"`
+	Name        string `json:"name"`
+	Date        string `json:"date"`
+	Description string `json:"description"`
 }
 
-var todos = []todo{
-	{Email: "jalal@gmail.com"},
-	{Email: "jalal@gmail.com"},
-	{Email: "jalal@gmail.com"},
-	{Email: "jalal@gmail.com"},
-}
+var todos = []todo{}
 
 func getTodos(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, todos)
@@ -43,7 +38,7 @@ func getTodo(context *gin.Context) {
 func getTodoByEmail(email string) (*[]todo, error) {
 	var mylist = []todo{}
 	for i, value := range todos {
-		if value.Email == email {
+		if value.User == email {
 			mylist = append(mylist, todos[i])
 			// return &todos[i], nil
 		}
@@ -73,20 +68,20 @@ func main() {
 		log.Println("No .env file found")
 	}
 
-	uri := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
-	db, err := sql.Open("postgres", uri)
+	// uri := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
+	// db, err := sql.Open("postgres", uri)
 
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer db.Close()
 
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err = db.Ping()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	log.Println("Database connected")
+	// log.Println("Database connected")
 
 	// if uri == "" {
 	// 	log.Fatal("You must set your 'MONGODB_URI' environment variable")
