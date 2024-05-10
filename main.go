@@ -1,9 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -59,42 +62,36 @@ func addTodo(context *gin.Context) {
 
 	context.IndentedJSON(http.StatusCreated, newTodo)
 }
-
-func main() {
-	// Database conection
-
+func databaseConnection() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("No .env file found")
 	}
+	host := os.Getenv("host")
+	port := 5432
+	user := os.Getenv("user")
+	dbname := os.Getenv("dbname")
+	password := os.Getenv("password")
 
-	// uri := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
-	// db, err := sql.Open("postgres", uri)
+	uri := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", uri)
 
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer db.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-	// err = db.Ping()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// log.Println("Database connected")
+	log.Println("Database connected")
+}
 
-	// if uri == "" {
-	// 	log.Fatal("You must set your 'MONGODB_URI' environment variable")
-
-	// }
-	// ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	// defer cancel()
-	// client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// collection := client.Database("TodoApp").Collection("todos")
-	// log.Println(collection)
+func main() {
+	//DB connection
+	databaseConnection()
 
 	router := gin.Default()
 	router.Use(cors.Default())
