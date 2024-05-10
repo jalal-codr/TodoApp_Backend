@@ -62,6 +62,7 @@ func addTodo(context *gin.Context) {
 
 	context.IndentedJSON(http.StatusCreated, newTodo)
 }
+
 func databaseConnection() {
 	err := godotenv.Load()
 	if err != nil {
@@ -85,8 +86,22 @@ func databaseConnection() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	log.Println("Database connected")
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Todos (
+		id SERIAL PRIMARY KEY,
+		email VARCHAR(100),
+		name VARCHAR(100) NOT NULL,
+		date VARCHAR(100),
+		description VARCHAR(200)
+		)`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Todos table created")
+
+	// log.Println("Database connected")
 }
 
 func main() {
