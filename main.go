@@ -1,30 +1,39 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-type todo struct {
+type Todo struct {
 	User        string `json:"user"`
 	Name        string `json:"name"`
 	Date        string `json:"date"`
 	Description string `json:"description"`
 }
 
-var todos = []todo{}
+var todos = []Todo{}
 
 func getTodos(context *gin.Context) {
-	context.IndentedJSON(http.StatusOK, todos)
+
+	todo, err := getTodosTable()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var mylist []Todo
+	for todo.Next() {
+		var todo Todo
+		mylist = append(mylist, todo)
+	}
+
+	context.IndentedJSON(http.StatusOK, mylist)
+
 }
 
 func getTodo(context *gin.Context) {
@@ -38,8 +47,8 @@ func getTodo(context *gin.Context) {
 
 }
 
-func getTodoByEmail(email string) (*[]todo, error) {
-	var mylist = []todo{}
+func getTodoByEmail(email string) (*[]Todo, error) {
+	var mylist = []Todo{}
 	for i, value := range todos {
 		if value.User == email {
 			mylist = append(mylist, todos[i])
@@ -53,7 +62,7 @@ func getTodoByEmail(email string) (*[]todo, error) {
 }
 
 func addTodo(context *gin.Context) {
-	var newTodo todo
+	var newTodo Todo
 	if err := context.BindJSON(&newTodo); err != nil {
 		return
 	}
@@ -61,47 +70,6 @@ func addTodo(context *gin.Context) {
 	todos = append(todos, newTodo)
 
 	context.IndentedJSON(http.StatusCreated, newTodo)
-}
-
-func databaseConnection() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found")
-	}
-	host := os.Getenv("host")
-	port := 5432
-	user := os.Getenv("user")
-	dbname := os.Getenv("dbname")
-	password := os.Getenv("password")
-
-	uri := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", uri)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Database connected")
-
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Todos (
-		id SERIAL PRIMARY KEY,
-		email VARCHAR(100),
-		name VARCHAR(100) NOT NULL,
-		date VARCHAR(100),
-		description VARCHAR(200)
-		)`)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Todos table created")
-
-	// log.Println("Database connected")
 }
 
 func main() {
