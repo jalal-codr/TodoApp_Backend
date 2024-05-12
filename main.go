@@ -7,8 +7,8 @@ import (
 )
 
 type Todo struct {
-	Id          string `json:id`
 	Email       string `json:"email"`
+	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Date        string `json:"date"`
 	Description string `json:"description"`
@@ -17,6 +17,7 @@ type Todo struct {
 func main() {
 	//DB connection
 	databaseConnection()
+	// closeDB()
 
 	router := gin.Default()
 	router.Use(cors.Default())

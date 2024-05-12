@@ -40,6 +40,6 @@ func databaseConnection() {
 
 }
 
-func closeDB() {
-	defer DB.Close()
-}
+// func closeDB() {
+// 	defer DB.Close()
+// }
