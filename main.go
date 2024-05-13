@@ -26,6 +26,7 @@ func main() {
 	router.GET("/myTodos/:email", getMyTodos)
 	router.POST("/todos", createTodo)
 	router.PUT("/todo", editTodo)
+	router.DELETE("/todo", deleteTodo)
 
 	router.Run("localhost:9090")
 }
